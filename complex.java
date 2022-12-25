@@ -15,8 +15,8 @@ public class complex {
     public complex() {
         this.real = 0;
         this.imag = 0;
-    }    
-    
+    }
+
     public complex(double real, double imag) {
         this.real = real;
         this.imag = imag;
@@ -25,8 +25,8 @@ public class complex {
     public complex(complex c) {
         this.real = c.real;
         this.imag = c.imag;
-    }    
-    
+    }
+
     public double getReal() {
         return real;
     }
@@ -47,11 +47,13 @@ public class complex {
     public String toString() {
         return "complex{" + "real=" + real + ", imag=" + imag + '}';
     }
-    
-    public complex add(complex a){
-        return new complex(a.real+this.real, a.imag+this.imag);
+
+    public complex add(complex a) {
+        return new complex(a.real + this.real, a.imag + this.imag);
     }
-    public complex mult(complex a){
-        return new complex(a.real*this.real - a.imag*this.imag, a.real*this.imag + a.imag*this.real);
-    }    
+
+    public complex mult(complex a) {
+        return new complex(a.real * this.real - a.imag * this.imag, a.real * this.imag + a.imag * this.real);
+    }
+
 }
