@@ -52,8 +52,16 @@ public class complex {
         return new complex(a.real + this.real, a.imag + this.imag);
     }
 
+    public complex sub(complex a) {
+        return new complex(this.real - a.real, this.imag - a.imag);
+    }
+
     public complex mult(complex a) {
         return new complex(a.real * this.real - a.imag * this.imag, a.real * this.imag + a.imag * this.real);
+    }
+
+    public double length() {
+        return Math.sqrt(this.real * this.real + this.imag * this.imag);
     }
 
 }
