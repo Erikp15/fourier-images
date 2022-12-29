@@ -15,10 +15,14 @@ public class Frame extends JFrame implements ActionListener {
 
     public static void main(String args[]) {
         JFrame frame = new JFrame();
-
         complex a = new complex(1, 0);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        plot p = new plot(a);
+        int vectors = 10;
+        plot p = new plot();
+        for (int i = 1; i <= vectors; i++) {
+            p.addpoint(a.add(p.getCord().get(i - 1)), 1 / (double) i);
+        }
+
         frame.add(p);
         frame.setSize(1000, 1000);
         frame.setVisible(true);
@@ -28,16 +32,21 @@ public class Frame extends JFrame implements ActionListener {
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
-            // number of rotations per second
+            // number of full rotations per second
             double rotations = 0.5;
-            p.replacepoint(
-                    new complex(Math.cos((time * Math.PI / 30) * rotations),
-                            Math.sin((time * Math.PI / 30) * rotations)),
-                    0);
-            System.out.println(p.getCord().get(0));
+            for (int i = 1; i <= vectors; i++) {
+                p.replacepoint(
+                        rotationcalc(time, rotations * i, p.getCoef().get(i)).add(p.getCord().get(i - 1)), i);
+            }
             frame.revalidate();
             frame.repaint();
         }
+    }
+
+    // calculates the rotation of each vector
+    public static complex rotationcalc(int time, double rotations, double scaling) {
+        return new complex(Math.cos((time * Math.PI / 30) * rotations) * scaling,
+                Math.sin((time * Math.PI / 30) * rotations) * scaling);
     }
 
     @Override
