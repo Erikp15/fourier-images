@@ -13,21 +13,32 @@ import java.util.ArrayList;
 public class plot extends JPanel {
     private int scaling = 100;
     private int offsetX = 442, offsetY = 436;
+    // list of each of the end points of the vectors that are connected
     private ArrayList<complex> cord = new ArrayList<complex>();
+    // list of each of the scaling coefficients
+    private ArrayList<Double> coef = new ArrayList<Double>();
+    // list of each of the pixels of the drawing
+    private ArrayList<complex> drawing = new ArrayList<complex>();
     private int sz;
     private int marg = 0;
 
     public plot() {
         ArrayList<complex> p = new ArrayList<complex>();
-        p.add(new complex(offsetX, offsetY));
+        p.add(new complex(0, 0));
+        ArrayList<Double> c = new ArrayList<Double>();
+        c.add((double) 0);
         setCord(p);
+        setCoef(c);
         setSz(1);
     }
 
     public plot(complex a) {
         ArrayList<complex> p = new ArrayList<complex>();
         p.add(a);
+        ArrayList<Double> c = new ArrayList<Double>();
+        c.add(a.length());
         setCord(p);
+        setCoef(c);
         setSz(1);
     }
 
@@ -37,6 +48,22 @@ public class plot extends JPanel {
 
     public void setCord(ArrayList<complex> cord) {
         this.cord = cord;
+    }
+
+    public ArrayList<Double> getCoef() {
+        return coef;
+    }
+
+    public void setCoef(ArrayList<Double> coef) {
+        this.coef = coef;
+    }
+
+    public ArrayList<complex> getDrawing() {
+        return drawing;
+    }
+
+    public void setDrawing(ArrayList<complex> drawing) {
+        this.drawing = drawing;
     }
 
     public int getSz() {
@@ -55,8 +82,9 @@ public class plot extends JPanel {
         this.marg = marg;
     }
 
-    public void addpoint(complex a) {
+    public void addpoint(complex a, double c) {
         cord.add(a);
+        coef.add(c);
         sz++;
     }
 
@@ -95,17 +123,18 @@ public class plot extends JPanel {
         graph.draw(new Line2D.Double(marg, height / 2, width - marg, height / 2));
         graph.setColor(new Color(0, 0, 255));
         graph.setStroke(new BasicStroke(2));
-        for (int i = 0; i < cord.size(); i++) {
-            graph.draw(new Line2D.Double(new Point(offsetX, offsetY), this.translate(cord.get(i))));
+        // connecting the vector endpoints to build the fourier series
+        for (int i = 1; i < cord.size(); i++) {
+            graph.draw(new Line2D.Double(this.translate(cord.get(i - 1)), this.translate(cord.get(i))));
         }
 
-        // find value of x and scale to plot points
-        // double x = (double)(width-2*marg)/(cord.length-1);
-        // double scale = (double)(height-2*marg)/getMax();
-
-        // set color for points
-        graph.setPaint(Color.RED);
-
-        // set points to the graph
+        // maintaining only the last 100 points of the drawing
+        drawing.add(cord.get(cord.size() - 1));
+        if (drawing.size() > 100) {
+            drawing.remove(0);
+        }
+        for (int i = 1; i < drawing.size(); i++) {
+            graph.draw(new Line2D.Double(this.translate(drawing.get(i - 1)), this.translate(drawing.get(i))));
+        }
     }
 }
