@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package plottest;
+package fourier_series;
 
 import java.awt.*;
 import javax.swing.*;
@@ -13,35 +13,44 @@ import java.util.ArrayList;
 public class plot extends JPanel {
     private int scaling = 100;
     private int offsetX = 442, offsetY = 436;
+    private int marg = 0;
     // list of each of the end points of the vectors that are connected
     private ArrayList<complex> cord = new ArrayList<complex>();
     // list of each of the scaling coefficients
     private ArrayList<Double> coef = new ArrayList<Double>();
+    // list of each of the rotation speeds
+    private ArrayList<Double> rotation = new ArrayList<Double>();    
     // list of each of the pixels of the drawing
     private ArrayList<complex> drawing = new ArrayList<complex>();
-    private int sz;
-    private int marg = 0;
 
     public plot() {
         ArrayList<complex> p = new ArrayList<complex>();
-        p.add(new complex(0, 0));
         ArrayList<Double> c = new ArrayList<Double>();
-        c.add((double) 0);
         setCord(p);
         setCoef(c);
-        setSz(1);
+        setRotation(c);
     }
 
-    public plot(complex a) {
+    public plot(complex a, double d) {
         ArrayList<complex> p = new ArrayList<complex>();
         p.add(a);
         ArrayList<Double> c = new ArrayList<Double>();
         c.add(a.length());
+        ArrayList<Double> r = new ArrayList<Double>();
+        r.add(d);        
         setCord(p);
         setCoef(c);
-        setSz(1);
+        setRotation(r);
     }
 
+    public ArrayList<Double> getRotation() {
+        return rotation;
+    }
+
+    public void setRotation(ArrayList<Double> rotation) {
+        this.rotation = rotation;
+    }
+    
     public ArrayList<complex> getCord() {
         return cord;
     }
@@ -66,14 +75,6 @@ public class plot extends JPanel {
         this.drawing = drawing;
     }
 
-    public int getSz() {
-        return sz;
-    }
-
-    public void setSz(int sz) {
-        this.sz = sz;
-    }
-
     public int getMarg() {
         return marg;
     }
@@ -82,11 +83,17 @@ public class plot extends JPanel {
         this.marg = marg;
     }
 
-    public void addpoint(complex a, double c) {
+    public void addpoint(complex a, double r) {
         cord.add(a);
-        coef.add(c);
-        sz++;
+        coef.add(a.length());
+        rotation.add(r);
+        System.out.print(rotation.get(rotation.size()-1));
     }
+    public void removepoint(int i) {
+        cord.remove(i);
+        coef.remove(i);
+        rotation.remove(i);
+    }    
 
     public void editpoint(complex a, int i, boolean tomult) {
         if (tomult) {
@@ -94,10 +101,13 @@ public class plot extends JPanel {
         } else {
             cord.set(i, cord.get(i).add(a));
         }
+        coef.set(i, cord.get(i).length());
     }
 
-    public void replacepoint(complex a, int i) {
+    public void replacepoint(complex a, int i, double r) {
         cord.set(i, a);
+        coef.set(i, cord.get(i).length());
+        rotation.set(i, r);
     }
 
     public Point translate(complex a) {
@@ -124,15 +134,19 @@ public class plot extends JPanel {
         graph.setColor(new Color(0, 0, 255));
         graph.setStroke(new BasicStroke(2));
         // connecting the vector endpoints to build the fourier series
-        for (int i = 1; i < cord.size(); i++) {
-            graph.draw(new Line2D.Double(this.translate(cord.get(i - 1)), this.translate(cord.get(i))));
+        complex pen = new complex(0, 0);
+        for (int i = 0; i < cord.size(); i++) {
+            graph.draw(new Line2D.Double(this.translate(pen), this.translate(pen.add(cord.get(i)))));
+            pen = pen.add(cord.get(i));
         }
-
+        graph.setColor(new Color(0, 255, 255));
         // maintaining only the last 100 points of the drawing
-        drawing.add(cord.get(cord.size() - 1));
-        if (drawing.size() > 100) {
+        
+        drawing.add(pen);
+        if (drawing.size() > 10000) {
             drawing.remove(0);
         }
+        
         for (int i = 1; i < drawing.size(); i++) {
             graph.draw(new Line2D.Double(this.translate(drawing.get(i - 1)), this.translate(drawing.get(i))));
         }
