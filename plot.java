@@ -19,16 +19,17 @@ public class plot extends JPanel {
     // list of each of the scaling coefficients
     private ArrayList<Double> coef = new ArrayList<Double>();
     // list of each of the rotation speeds
-    private ArrayList<Double> rotation = new ArrayList<Double>();    
+    private ArrayList<Double> rotation = new ArrayList<Double>();
     // list of each of the pixels of the drawing
     private ArrayList<complex> drawing = new ArrayList<complex>();
 
     public plot() {
         ArrayList<complex> p = new ArrayList<complex>();
         ArrayList<Double> c = new ArrayList<Double>();
+        ArrayList<Double> r = new ArrayList<Double>();
         setCord(p);
         setCoef(c);
-        setRotation(c);
+        setRotation(r);
     }
 
     public plot(complex a, double d) {
@@ -37,7 +38,7 @@ public class plot extends JPanel {
         ArrayList<Double> c = new ArrayList<Double>();
         c.add(a.length());
         ArrayList<Double> r = new ArrayList<Double>();
-        r.add(d);        
+        r.add(d);
         setCord(p);
         setCoef(c);
         setRotation(r);
@@ -50,7 +51,7 @@ public class plot extends JPanel {
     public void setRotation(ArrayList<Double> rotation) {
         this.rotation = rotation;
     }
-    
+
     public ArrayList<complex> getCord() {
         return cord;
     }
@@ -87,21 +88,28 @@ public class plot extends JPanel {
         cord.add(a);
         coef.add(a.length());
         rotation.add(r);
-        System.out.print(rotation.get(rotation.size()-1));
+        System.out.println("");
     }
+
     public void removepoint(int i) {
         cord.remove(i);
         coef.remove(i);
         rotation.remove(i);
-    }    
+    }
 
     public void editpoint(complex a, int i, boolean tomult) {
         if (tomult) {
+            System.out.println(cord.get(i));
             cord.set(i, cord.get(i).mult(a));
+            System.out.println(a);
+            // cord.set(i, cord.get(i).mult(new complex(1 / cord.get(i).length(),
+            // 0)).mult(new complex(coef.get(i), 0)));
+            System.out.println(cord.get(i));
+            System.out.println("");
         } else {
             cord.set(i, cord.get(i).add(a));
+            coef.set(i, cord.get(i).length());
         }
-        coef.set(i, cord.get(i).length());
     }
 
     public void replacepoint(complex a, int i, double r) {
@@ -131,7 +139,7 @@ public class plot extends JPanel {
 
         graph.draw(new Line2D.Double(width / 2, marg, width / 2, height - marg));
         graph.draw(new Line2D.Double(marg, height / 2, width - marg, height / 2));
-        graph.setColor(new Color(0, 0, 255));
+        graph.setColor(new Color(155, 155, 155));
         graph.setStroke(new BasicStroke(2));
         // connecting the vector endpoints to build the fourier series
         complex pen = new complex(0, 0);
@@ -139,14 +147,14 @@ public class plot extends JPanel {
             graph.draw(new Line2D.Double(this.translate(pen), this.translate(pen.add(cord.get(i)))));
             pen = pen.add(cord.get(i));
         }
-        graph.setColor(new Color(0, 255, 255));
+        graph.setColor(new Color(55, 55, 55));
         // maintaining only the last 100 points of the drawing
-        
+
         drawing.add(pen);
         if (drawing.size() > 10000) {
             drawing.remove(0);
         }
-        
+
         for (int i = 1; i < drawing.size(); i++) {
             graph.draw(new Line2D.Double(this.translate(drawing.get(i - 1)), this.translate(drawing.get(i))));
         }
