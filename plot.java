@@ -11,13 +11,13 @@ import java.util.ArrayList;
 
 //Extends JPanel class  
 public class plot extends JPanel {
-    private int scaling = 100;
+    private int scaling = 1;
     private int offsetX = 442, offsetY = 436;
     private int marg = 0;
     // list of each of the end points of the vectors that are connected
     private ArrayList<complex> cord = new ArrayList<complex>();
     // list of each of the scaling coefficients
-    private ArrayList<Double> coef = new ArrayList<Double>();
+    private ArrayList<complex> coef = new ArrayList<complex>();
     // list of each of the rotation speeds
     private ArrayList<Double> rotation = new ArrayList<Double>();
     // list of each of the pixels of the drawing
@@ -25,18 +25,18 @@ public class plot extends JPanel {
 
     public plot() {
         ArrayList<complex> p = new ArrayList<complex>();
-        ArrayList<Double> c = new ArrayList<Double>();
+        ArrayList<complex> c = new ArrayList<complex>();
         ArrayList<Double> r = new ArrayList<Double>();
         setCord(p);
         setCoef(c);
         setRotation(r);
     }
 
-    public plot(complex a, double d) {
+    public plot(complex a, complex b, double d) {
         ArrayList<complex> p = new ArrayList<complex>();
         p.add(a);
-        ArrayList<Double> c = new ArrayList<Double>();
-        c.add(a.length());
+        ArrayList<complex> c = new ArrayList<complex>();
+        c.add(b);
         ArrayList<Double> r = new ArrayList<Double>();
         r.add(d);
         setCord(p);
@@ -60,11 +60,11 @@ public class plot extends JPanel {
         this.cord = cord;
     }
 
-    public ArrayList<Double> getCoef() {
+    public ArrayList<complex> getCoef() {
         return coef;
     }
 
-    public void setCoef(ArrayList<Double> coef) {
+    public void setCoef(ArrayList<complex> coef) {
         this.coef = coef;
     }
 
@@ -86,9 +86,7 @@ public class plot extends JPanel {
 
     public void addpoint(complex a, double r) {
         cord.add(a);
-        coef.add(a.length());
         rotation.add(r);
-        System.out.println("");
     }
 
     public void removepoint(int i) {
@@ -99,22 +97,14 @@ public class plot extends JPanel {
 
     public void editpoint(complex a, int i, boolean tomult) {
         if (tomult) {
-            System.out.println(cord.get(i));
             cord.set(i, cord.get(i).mult(a));
-            System.out.println(a);
-            // cord.set(i, cord.get(i).mult(new complex(1 / cord.get(i).length(),
-            // 0)).mult(new complex(coef.get(i), 0)));
-            System.out.println(cord.get(i));
-            System.out.println("");
         } else {
             cord.set(i, cord.get(i).add(a));
-            coef.set(i, cord.get(i).length());
         }
     }
 
     public void replacepoint(complex a, int i, double r) {
         cord.set(i, a);
-        coef.set(i, cord.get(i).length());
         rotation.set(i, r);
     }
 
@@ -129,6 +119,7 @@ public class plot extends JPanel {
 
         // Sets the value of a single preference for the rendering algorithms.
         graph.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        graph.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 
         // get width and height
         int width = getWidth();
@@ -143,10 +134,14 @@ public class plot extends JPanel {
         graph.setStroke(new BasicStroke(2));
         // connecting the vector endpoints to build the fourier series
         complex pen = new complex(0, 0);
+        // System.out.println(cord.size());
         for (int i = 0; i < cord.size(); i++) {
             graph.draw(new Line2D.Double(this.translate(pen), this.translate(pen.add(cord.get(i)))));
+            System.out.println(cord.get(i) + " " + i);
             pen = pen.add(cord.get(i));
         }
+        // System.out.println(pen);
+        // System.out.println("");
         graph.setColor(new Color(55, 55, 55));
         // maintaining only the last 100 points of the drawing
 
