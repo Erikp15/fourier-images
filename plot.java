@@ -2,7 +2,6 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package fourier_series;
 
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -14,11 +13,9 @@ import java.util.ArrayList;
 
 //Extends JPanel class  
 public class plot extends JPanel {
-    private int scaling = 1;
+    private double scaling = 100;
     private int offsetX = 442, offsetY = 436;
-    private int marg = 0;
-    private Point pointstart = null;
-    private Point pointend = null;
+    private int marg = 100;
     // list of each of the end points of the vectors that are connected
     private ArrayList<complex> cord = new ArrayList<complex>();
     // list of each of the scaling coefficients
@@ -28,7 +25,7 @@ public class plot extends JPanel {
     // list of each of the pixels of the vector drawing
     private ArrayList<complex> vec_drawing = new ArrayList<complex>();
     // list of each of the pixels of the original drawing
-    private ArrayList<Point> ori_drawing = new ArrayList<Point>();    
+    private ArrayList<Point> ori_drawing = new ArrayList<Point>();
 
     public plot() {
         ArrayList<complex> p = new ArrayList<complex>();
@@ -71,7 +68,7 @@ public class plot extends JPanel {
     public void setCoef(ArrayList<complex> coef) {
         this.coef = coef;
     }
-    
+
     public ArrayList<complex> getDrawing() {
         return vec_drawing;
     }
@@ -79,7 +76,7 @@ public class plot extends JPanel {
     public ArrayList<complex> getVec_drawing() {
         return vec_drawing;
     }
-    
+
     public void setVec_drawing(ArrayList<complex> vec_drawing) {
         this.vec_drawing = vec_drawing;
     }
@@ -91,7 +88,6 @@ public class plot extends JPanel {
     public void setOri_drawing(ArrayList<Point> ori_drawing) {
         this.ori_drawing = ori_drawing;
     }
-    
 
     public void setDrawing(ArrayList<complex> vec_drawing) {
         this.vec_drawing = vec_drawing;
@@ -130,12 +126,15 @@ public class plot extends JPanel {
     }
 
     public Point complex_to_point(complex a) {
-        return new Point((int) Math.round(a.real * scaling) + offsetX + marg/2, (int) Math.round((-a.imag) * scaling) + offsetY);
+        return new Point((int) Math.round(a.real * scaling) + offsetX + marg / 2,
+                (int) Math.round((-a.imag) * scaling) + offsetY);
     }
-    
+
     public complex point_to_complex(Point a) {
-        return new complex(a.x / scaling - offsetX - marg/2, (-a.y) / scaling - offsetY);
-    }    
+        // System.out.println((a.x - offsetX - marg / 2) / scaling + " " + -(a.y -
+        // offsetY) / scaling);
+        return new complex((a.x - offsetX - marg / 2) / scaling, -(a.y - offsetY) / scaling);
+    }
 
     protected void paintComponent(Graphics grf) {
         // create instance of the Graphics to use its methods
@@ -152,18 +151,19 @@ public class plot extends JPanel {
 
         this.offsetX = width / 2;
         this.offsetY = height / 2;
-        this.setBackground(new Color(0,0,0));
+        this.setBackground(new Color(0, 0, 0));
         graph.setColor(new Color(255, 255, 255));
-        graph.draw(new Line2D.Double((width+marg) / 2 , 0, (width+marg) / 2 , height - 0));
-        graph.draw(new Line2D.Double(marg, height / 2, width - 0, height / 2));
-        graph.setColor(new Color(155, 155, 155));
+        // graph.draw(new Line2D.Double((width + marg) / 2, 0, (width + marg) / 2,
+        // height - 0));
+        // graph.draw(new Line2D.Double(marg, height / 2, width - 0, height / 2));
+        // graph.setColor(new Color(155, 155, 155));
         graph.setStroke(new BasicStroke(2));
         // connecting the vector endpoints to build the fourier series
         complex pen = new complex(0, 0);
         // System.out.println(cord.size());
         for (int i = 0; i < cord.size(); i++) {
             graph.draw(new Line2D.Double(this.complex_to_point(pen), this.complex_to_point(pen.add(cord.get(i)))));
-            System.out.println(cord.get(i) + " " + i);
+            // System.out.println(cord.get(i) + " " + i);
             pen = pen.add(cord.get(i));
         }
         // System.out.println(pen);
@@ -177,28 +177,8 @@ public class plot extends JPanel {
         }
 
         for (int i = 1; i < vec_drawing.size(); i++) {
-            graph.draw(new Line2D.Double(this.complex_to_point(vec_drawing.get(i - 1)), this.complex_to_point(vec_drawing.get(i))));
+            graph.draw(new Line2D.Double(this.complex_to_point(vec_drawing.get(i - 1)),
+                    this.complex_to_point(vec_drawing.get(i))));
         }
     }
-     {
-            addMouseListener(new MouseAdapter() {
-                public void mousePressed(MouseEvent e) {
-                    pointstart = e.getPoint();
-                }
-
-                public void mouseReleased(MouseEvent e) {
-                    pointstart = null;
-                }
-            });
-            addMouseMotionListener(new MouseMotionAdapter() {
-                public void mouseMoved(MouseEvent e) {
-                    pointend = e.getPoint();
-                }
-
-                public void mouseDragged(MouseEvent e) {
-                    pointend = e.getPoint();
-                    repaint();
-                }
-            });
-        }
 }
