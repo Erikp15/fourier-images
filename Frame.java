@@ -5,62 +5,96 @@
 package fourier_series;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import javax.swing.*;
 import java.awt.geom.*;
+import java.util.ArrayList;
 
 //Extends JPanel class  
 public class Frame extends JFrame implements ActionListener {
-    public static int vectors = 3;
-    public static int fps = 360;
+    public int vectors = 3;
+    public int fps = 360;
     // number of full rotations per second
-    public static double rotations = 0.1;
-    public static plot p = new plot();
-    public static JFrame frame = new JFrame();
-
-    public static void main(String args[]) {
-
+    public double rotations = 0.1;
+    public plot vec_plot = new plot();
+    public drawing draw_plot = new drawing(100,0,2000,2000);
+    public JFrame frame = new JFrame();
+    public int phase=1, time=0;
+    
+    Frame(){
+        JButton reset = new JButton("Reset");
+        JButton done = new JButton("Done");
+        reset.addActionListener(this);
+        done.addActionListener(this);
+        reset.setActionCommand("reset");
+        done.setActionCommand("done");
+        reset.setBounds(20,20,70,40);
+        done.setBounds(20,70,70,40);
+        frame.add(draw_plot);
+        frame.add(done);
+        frame.add(reset);
+        frame.setLayout(null);        
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(900, 900);
+        frame.setVisible(true); 
+        
+        while(phase!=2){
+            System.out.println(time);
+            time++;
+            time=time%1000000;
+        }
+        frame.getContentPane().removeAll();
+        frame.setLayout(new BorderLayout());        
         compute_coefs();
         init_vectors();
-        frame.add(p);
-        frame.setSize(1000, 1000);
-        frame.setVisible(true);
-        run_program();
+        frame.add(vec_plot);
+        run_program();        
     }
 
-    public static void compute_coefs() {
-        /*
-         * for (int i = 0; i < vectors; i++) {
-         * p.getCoef().add(new complex(1, 0));
-         * System.out.println(p.getCoef().get(i));
-         * }
-         * for (int i = vectors + 1; i < 2 * vectors; i++) {
-         * p.getCoef().add(new complex(1, 0));
-         * System.out.println(p.getCoef().get(i - 1));
-         * }
-         */
-        p.getCoef().add(new complex(10.72, 16.52));
-        p.getCoef().add(new complex(-12.64, 20.90));
-        p.getCoef().add(new complex(-44.85, -23.71));
-        p.getCoef().add(new complex(-135.66, -45.57));
-        p.getCoef().add(new complex(66.75, -53.07));
-
-    }
-
-    public static void init_vectors() {
+    public void compute_coefs() {
+        ArrayList<Point> to_comp = draw_plot.getOri_drawing();
         for (int i = 0; i < vectors; i++) {
-            p.addpoint(p.getCoef().get(i), i);
-            System.out.println(p.getRotation().get(i) + " " + i);
+            complex avg = new complex(0,0);
+            for(int j=0;j<to_comp.size();i++){
+                avg = avg.add(vec_plot.point_to_complex(to_comp.get(j)));
+            }
+            avg = avg.mult(new complex(1/(double)(to_comp.size()), 0));
+            avg = avg.mult(exp(-i*rotations));
+            vec_plot.getCoef().add(avg);
+            System.out.println(vec_plot.getCoef().get(i));
         }
         for (int i = vectors + 1; i < 2 * vectors; i++) {
-            p.addpoint(p.getCoef().get(i - 1), -(i - vectors));
-            System.out.println(p.getRotation().get(i - 1) + " " + (i - 1));
+            complex avg = new complex(0,0);
+            for(int j=0;j<to_comp.size();i++){
+                avg = avg.add(vec_plot.point_to_complex(to_comp.get(j)));
+            }
+            avg = avg.mult(new complex(1/(double)(to_comp.size()), 0));
+            avg = avg.mult(exp((i - vectors)*rotations));
+            vec_plot.getCoef().add(avg);
+            System.out.println(vec_plot.getCoef().get(i-1));
+        }
+        
+        /*
+        vec_plot.getCoef().add(new complex(10.72, 16.52).mult(new complex(0.5, 0)));
+        vec_plot.getCoef().add(new complex(-12.64, 20.90).mult(new complex(0.5, 0)));
+        vec_plot.getCoef().add(new complex(-44.85, -23.71).mult(new complex(0.5, 0)));
+        vec_plot.getCoef().add(new complex(-135.66, -45.57).mult(new complex(0.5, 0)));
+        vec_plot.getCoef().add(new complex(66.75, -53.07).mult(new complex(0.5, 0)));
+        */
+    }
+
+    public void init_vectors() {
+        for (int i = 0; i < vectors; i++) {
+            vec_plot.addpoint(vec_plot.getCoef().get(i), i);
+            System.out.println(vec_plot.getRotation().get(i) + " " + i);
+        }
+        for (int i = vectors + 1; i < 2 * vectors; i++) {
+            vec_plot.addpoint(vec_plot.getCoef().get(i - 1), -(i - vectors));
+            System.out.println(vec_plot.getRotation().get(i - 1) + " " + (i - 1));
         }
     }
 
-    public static void run_program() {
+    public void run_program() {
         while (true) {
             try {
                 Thread.sleep(1000 / fps);
@@ -68,28 +102,39 @@ public class Frame extends JFrame implements ActionListener {
                 Thread.currentThread().interrupt();
             }
             for (int i = 0; i < vectors; i++) {
-                p.editpoint(exp(p.getRotation().get(i) * rotations), i, true);
-                // System.out.println(p.getCord().get(i) + " " + (i));
+                vec_plot.editpoint(exp(vec_plot.getRotation().get(i) * rotations), i, true);
+                // System.out.println(vec_plot.getCord().get(i) + " " + (i));
             }
             for (int i = vectors + 1; i < 2 * vectors; i++) {
-                p.editpoint(exp(p.getRotation().get(i - 1) * rotations), i - 1, true);
-                // System.out.println(p.getCord().get(i - 1) + " " + (i - 1));
+                vec_plot.editpoint(exp(vec_plot.getRotation().get(i - 1) * rotations), i - 1, true);
+                // System.out.println(vec_plot.getCord().get(i - 1) + " " + (i - 1));
             }
-            frame.revalidate();
-            frame.repaint();
+            vec_plot.revalidate();
+            vec_plot.repaint();
         }
     }
 
     // calculates the rotation of each vector
-    public static complex exp(double rotations) {
+    public complex exp(double rotations) {
         return new complex(Math.cos(Math.PI * 2 / fps * rotations),
                 Math.sin(Math.PI * 2 / fps * rotations));
     }
-
+    
+    public static void main(String args[]) {        
+        new Frame();
+    }    
+    
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (e.getActionCommand().equals("")) {
-
+        String a = e.getActionCommand();
+        if (a.equals("done")) {
+            if(draw_plot.getOri_drawing().size()!=0){
+                phase=2;
+            }
         }
+        if (a.equals("reset")) {
+            draw_plot.setOri_drawing(new ArrayList<Point>());
+            draw_plot.repaint();
+        }        
     }
 }
