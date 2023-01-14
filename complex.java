@@ -2,7 +2,8 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package plottest;
+
+package fourier_images;
 
 /**
  *
@@ -48,6 +49,7 @@ public class complex {
         return "complex{" + "real=" + real + ", imag=" + imag + '}';
     }
 
+
     public complex add(complex a) {
         return new complex(a.real + this.real, a.imag + this.imag);
     }
@@ -58,10 +60,6 @@ public class complex {
 
     public complex mult(complex a) {
         return new complex(a.real * this.real - a.imag * this.imag, a.real * this.imag + a.imag * this.real);
-    }
-
-    public double length() {
-        return Math.sqrt(this.real * this.real + this.imag * this.imag);
     }
 
 }

@@ -2,6 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
+package fourier_images;
 
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -27,13 +28,17 @@ public class plot extends JPanel {
     // list of each of the pixels of the original drawing
     private ArrayList<Point> ori_drawing = new ArrayList<Point>();
 
-    public plot() {
+    public plot(int sx, int sy, int ex, int ey) {
         ArrayList<complex> p = new ArrayList<complex>();
         ArrayList<complex> c = new ArrayList<complex>();
         ArrayList<Double> r = new ArrayList<Double>();
+        ArrayList<Point> o = new ArrayList<Point>();
         setCord(p);
         setCoef(c);
         setRotation(r);
+        setOri_drawing(o);
+        this.setBounds(sx, sy, ex, ey);
+        this.setBackground(new Color(0,0,0));
     }
 
     public plot(ArrayList<Point> to_draw) {
@@ -126,14 +131,12 @@ public class plot extends JPanel {
     }
 
     public Point complex_to_point(complex a) {
-        return new Point((int) Math.round(a.real * scaling) + offsetX + marg / 2,
+        return new Point((int) Math.round(a.real * scaling) + offsetX + marg,
                 (int) Math.round((-a.imag) * scaling) + offsetY);
     }
 
     public complex point_to_complex(Point a) {
-        // System.out.println((a.x - offsetX - marg / 2) / scaling + " " + -(a.y -
-        // offsetY) / scaling);
-        return new complex((a.x - offsetX - marg / 2) / scaling, -(a.y - offsetY) / scaling);
+        return new complex((a.x - offsetX) / scaling, -(a.y - offsetY) / scaling);
     }
 
     protected void paintComponent(Graphics grf) {
@@ -149,29 +152,23 @@ public class plot extends JPanel {
         int width = getWidth();
         int height = getHeight();
 
-        this.offsetX = width / 2;
-        this.offsetY = height / 2;
-        this.setBackground(new Color(0, 0, 0));
         graph.setColor(new Color(255, 255, 255));
-        // graph.draw(new Line2D.Double((width + marg) / 2, 0, (width + marg) / 2,
-        // height - 0));
-        // graph.draw(new Line2D.Double(marg, height / 2, width - 0, height / 2));
-        // graph.setColor(new Color(155, 155, 155));
         graph.setStroke(new BasicStroke(2));
         // connecting the vector endpoints to build the fourier series
         complex pen = new complex(0, 0);
-        // System.out.println(cord.size());
         for (int i = 0; i < cord.size(); i++) {
             graph.draw(new Line2D.Double(this.complex_to_point(pen), this.complex_to_point(pen.add(cord.get(i)))));
-            // System.out.println(cord.get(i) + " " + i);
             pen = pen.add(cord.get(i));
         }
-        // System.out.println(pen);
-        // System.out.println("");
+        
+        
+        graph.setColor(new Color(100, 200, 100));
+        for (int i = 1; i < ori_drawing.size(); i++) {
+            graph.draw(new Line2D.Double(new Point(ori_drawing.get(i - 1).x+100,ori_drawing.get(i - 1).y), new Point(ori_drawing.get(i).x+100,ori_drawing.get(i).y)));
+        }        
         graph.setColor(new Color(0, 200, 200));
-        // maintaining only the last 100 points of the vec_drawing
-
         vec_drawing.add(pen);
+        // maintaining the last 10000 points of the vec_drawing
         if (vec_drawing.size() > 10000) {
             vec_drawing.remove(0);
         }
